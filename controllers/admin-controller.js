@@ -8,6 +8,7 @@ import Admins from "../models/admin-model.js";
 export const getAdmins = (req,res)=>{
     Admins.find().exec().then((admins)=>{
       return response(200,admins,res)
+        console.log(admins)
     }).catch((err)=>{
        return MongooseErrorHandler(err,res)
     })

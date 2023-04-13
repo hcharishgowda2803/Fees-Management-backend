@@ -49,7 +49,6 @@ function response(status,result,res){
         },
         response:{
             data:result,
-            count:result.length
         }
     }
     res.status(status).json(resp).end();

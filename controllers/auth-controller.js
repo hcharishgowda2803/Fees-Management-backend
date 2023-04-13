@@ -1,9 +1,31 @@
-// import {sign,decoded} from "../utils/jwt-utils.js"
+import Admins from "../models/admin-model.js";
+import {handleError, MongooseErrorHandler, response} from "../utils/response-code.js";
+import {sign,decoded} from "../utils/jwt-utils.js";
 
 
-export const login = (req,res)=>{
-    let {email,password}=req.body
-    res.send(req.body)
 
+export const login = async (req,res)=>{
+    let {email_address,password} = req.body
+    try {
+        const adminData = await Admins.findOne(req.body)
+        if(adminData){
+           const token =await sign(email_address);
+          res.json({token})
+        }else{
+            handleError(404,"Admin Not Fount",res)
+        }
+    } catch (err){
+        MongooseErrorHandler(err,res)
+    }
+
+}
+
+export const authenticateToken = async (req,res,next)=>{
+    const authHeader =  req.headers.authorization
+    await decoded(authHeader).then((user)=>{
+        next()
+    }).catch((err)=>{
+        response(403,'Invalid Token',res)
+    })
 
 }

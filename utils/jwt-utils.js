@@ -1,10 +1,10 @@
-import jwt, {decode} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 
 const secretKey = 'Harish@2023#'
 
 
-module.exports.sign = function (user_id){
+export const sign = function (user_id){
     return new Promise((resolve,reject)=>{
         let payload = {
             user_id:user_id
@@ -14,14 +14,17 @@ module.exports.sign = function (user_id){
     });
 }
 
-module.exports.decoded = function (token){
-    return new Promise((resolve,reject)=>{
-        jwt.verify(token,secretKey,{},(error,decode)=>{
-            if(error){
-                reject('invalid Token');
-            }else {
-                resolve(decode)
-            }
-        })
-    })
+export const decoded = function (token){
+ return new Promise((resolve,reject)=>{
+     jwt.verify(token,secretKey,{},(err,user)=>{
+         if(err){
+             reject(err)
+         }else {
+             resolve(user)
+         }
+     })
+ })
 }
+
+
+
