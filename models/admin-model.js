@@ -18,8 +18,8 @@ let admin_schema = new mongoose.Schema({
         require: true
     },
     password:{
-           type: String,
-           required: true
+            type: String,
+            required: true
     },
     _id:{
         type:String,

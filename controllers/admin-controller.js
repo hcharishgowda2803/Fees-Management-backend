@@ -1,5 +1,6 @@
 import {handleError, MongooseErrorHandler, response} from "../utils/response-code.js";
 import Admins from "../models/admin-model.js";
+import {encrypt} from "../utils/bcrypt.js";
 
 
 
@@ -8,7 +9,6 @@ import Admins from "../models/admin-model.js";
 export const getAdmins = (req,res)=>{
     Admins.find().exec().then((admins)=>{
       return response(200,admins,res)
-        console.log(admins)
     }).catch((err)=>{
        return MongooseErrorHandler(err,res)
     })
@@ -29,32 +29,34 @@ export const getByIds = (req,res)=> {
 
 
 //register or add admins
-export const addAdmins = (req,res)=>{
+export const addAdmins =  (req,res)=>{
     let {name,mobile_number,email_address,password} = req.body;
-    Admins.findOne({mobile_number:mobile_number}).exec().then(doc =>{
-        if(doc){
-            return handleError(409,'Already Existed',res)
+    Admins.findOne({mobile_number:mobile_number}).exec().then(async doc => {
+        if (doc) {
+            return handleError(409, 'Already Existed', res)
         }
         let regex = new RegExp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$');
         if (!regex.test(password)) {
             return handleError(400, 'Password should consists of 8 characters with 1 uppercase, 1 special character and 1 number', res);
         }
-        const generateIds = ()=>{
-            const randomNumbers = Math.floor(Math.random()*10000);
+        const generateIds = () => {
+            const randomNumbers = Math.floor(Math.random() * 10000);
             return `admin-${randomNumbers}`
         }
         const user_id = generateIds();
+        const hashedPassword = await encrypt(password)
         const new_user = new Admins({
-            _id:user_id,
-            name:name,
-            mobile_number:mobile_number,
-            email_address:email_address,
-            password:password
+            _id: user_id,
+            name: name,
+            mobile_number: mobile_number,
+            email_address: email_address,
+            password: hashedPassword
         })
-        new_user.save().then(()=>{
-            return response(200,{user_id: new_user._id},res)
-        }).catch((err)=>{
-            return MongooseErrorHandler(err,res)
+        console.log(new_user)
+        new_user.save().then(() => {
+            return response(200, {user_id: new_user._id}, res)
+        }).catch((err) => {
+            return MongooseErrorHandler(err, res)
         })
     }).catch(err=>{
         return MongooseErrorHandler(err,res)
